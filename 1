@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT-DREAMDOSE Ultimate MCQ Challenge</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #f59e0b;
+            --correct-color: #10b981;
+            --wrong-color: #ef4444;
+            --text-color: #f8fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #334155;
+        }
+
+        .watermark {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--accent-color);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px dashed var(--accent-color);
+        }
+
+        .header-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .timer-box {
+            background: #334155;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #ef4444;
+        }
+
+        .question-box {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            white-space: pre-line;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #334155;
+            color: var(--text-color);
+            border: 2px solid transparent;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover {
+            background-color: #475569;
+            border-color: var(--accent-color);
+        }
+
+        .option-btn.correct {
+            background-color: var(--correct-color) !important;
+            color: white;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-color) !important;
+            color: white;
+            font-weight: bold;
+        }
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn, .start-btn {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .next-btn:active, .start-btn:active {
+            transform: scale(0.95);
+        }
+
+        .result-screen, .start-screen {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="watermark">YT-DREAMDOSE</div>
+
+    <div id="start-screen" class="start-screen">
+        <h2>Bilingual Game-Show Quiz</h2>
+        <p>Total Questions: 30</p>
+        <p>Timer per question: 30 Seconds</p>
+        <button class="start-btn" onclick="startQuiz()">Start Quiz Now</button>
+    </div>
+
+    <div id="quiz-screen" class="hide">
+        <div class="header-status">
+            <span id="question-count">Question 1/30</span>
+            <span id="score">Score: 0</span>
+            <span class="timer-box">⏳ <span id="timer">30</span>s</span>
+        </div>
+
+        <div id="question" class="question-box"></div>
+        <div id="options" class="options-grid"></div>
+
+        <div class="controls">
+            <button id="next-btn" class="next-btn hide" onclick="nextQuestion()">Next Question</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-screen hide">
+        <h2>Game Over!</h2>
+        <h3 id="final-score"></h3>
+        <button class="start-btn" onclick="location.reload()">Try Again</button>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    {
+        q: "1. निम्नलिखित कथनों पर विचार कीजिए :\nI. बहादुर शाह प्रथम को शाह आलम प्रथम भी कहा जाता था।\nII. बहादुर शाह प्रथम ने राजपूतों के प्रति कठोर विरोधी नीति अपनाई।\nIII. वह औरंगजेब का पुत्र था।\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["(A) केवल I और II", "(B) केवल I और III", "(C) केवल II और III", "(D) I, II और III"],
+        ans: 1
+    },
+    {
+        q: "2. निम्नलिखित कथनों पर विचार कीजिए :\nI. फर्रुखसियर सैयद बंधुओं की सहायता से मुगल सम्राट बना।\nII. उसके शासनकाल में अंग्रेजी ईस्ट इंडिया कंपनी को महत्वपूर्ण व्यापारिक सुविधाएं प्राप्त हुईं।\nIII. उसने सफलतापूर्वक सैयद बंधुओं के प्रभाव को समाप्त कर दिया।\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["(A) केवल I और II", "(B) केवल II और III", "(C) केवल I और III", "(D) I, II और III"],
+        ans: 0
+    },
+    {
+        q: "3. निम्नलिखित कथनों पर विचार कीजिए :\nI. सैयद बंधुओं को \"किंग मेकर्स\" कहा जाता था।\nII. औरंगजेब के बाद मुगल दरबार की राजनीति में उनकी महत्वपूर्ण भूमिका थी।\nIII. उन्होंने बंगाल में स्वतंत्र साम्राज्य स्थापित किया।\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["(A) केवल I और II", "(B) केवल II और III", "(C) केवल I और III", "(D) I, II और III"],
+        ans: 0
+    },
+    {
+        q: "4. निम्नलिखित कथनों पर विचार कीजिए :\nI. मुहम्मद शाह को \"रंगीला\" भी कहा जाता था।\nII. उसके शासनकाल में नादिर शाह ने भारत पर आक्रमण किया।\nIII. नादिर शाह मयूर सिंहासन को अपने साथ ले गया।\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["(A) केवल I और II", "(B) केवल II और III", "(C) केवल I और III", "(D) I, II और III"],
+        ans: 3
+    },
+    {
+        q: "5. मुगल साम्राज्य के पतन के संबंध में निम्नलिखित कथनों पर विचार कीजिए :\nI. औरंगजेब के कमजोर उत्तराधिकारी साम्राज्य के पतन के कारण बने।\nII. नादिर शाह के आक्रमण ने मुगलों की प्रतिष्ठा को कमजोर किया।\nIII. औरंगजेब के बाद मुगल साम्राज्य आर्थिक रूप से अधिक मजबूत हो गया।\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["(A) केवल I और II", "(B) केवल II और III", "(C) केवल I और III", "(D) I, II और III"],
+        ans: 0
+    },
+    {
+        q: "6. निम्नलिखित कथनों पर विचार कीजिए :\nI. अहमद शाह अब्दाली ने उत्तरकालीन मुगल काल में कई बार भारत पर आक्रमण किया।\nII. उसने तीसरे पानीपत के युद्ध में मराठों को पराजित किया।\nIII. तीसरा पानीपत का युद्ध 1757 में लड़ा गया था।\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["(A) केवल I और II", "(B) केवल II और III", "(C) केवल I और III", "(D) I, II और III"],
+        ans: 0
+    },
+    {
+        q: "7. निम्नलिखित कथनों पर विचार कीजिए :\nI. बहादुर शाह ज़फ़र अंतिम मुगल सम्राट था।\nII. 1857 के विद्रोह में उसकी प्रतीकात्मक भूमिका थी।\nIII. विद्रोह के बाद उसे रंगून निर्वासित कर दिया गया।\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["(A) केवल I और II", "(B) केवल II और III", "(C) केवल I और III", "(D) I, II और III"],
+        ans: 3
+    },
+    {
+        q: "8. करनाल के युद्ध (1739) के संबंध में निम्नलिखित कथनों पर विचार कीजिए:\n1. यह युद्ध फारस के आक्रमणकारी नादिर शाह और मुहम्मद शाह के नेतृत्व वाली मुगल सेना के बीच लड़ा गया था।\n2. इस युद्ध के बाद नादिर शाह ने दिल्ली को लूटा और वह अपने साथ प्रसिद्ध मयूर सिंहासन (तख्त-ए-ताऊस) और कोहिनूर हीरा ले गया।\n\nउपर्युक्त कथनों में से कौन-सा/से सही है/हैं?",
+        options: ["A) केवल 1", "B) केवल 2", "C) 1 और 2 दोनों", "D) न तो 1 और न ही 2"],
+        ans: 2
+    },
+    {
+        q: "9. पानीपत के तीसरे युद्ध (1761) के संदर्भ में निम्नलिखित कथनों पर विचार कीजिए:\n1. यह युद्ध मुगल सम्राट शाह आलम द्वितीय के शासनकाल के दौरान हुआ था।\n2. मराठा सेना को हराने के लिए मुगल सेना ने सीधे तौर पर अहमद शाह अब्दाली के साथ मिलकर युद्ध लड़ा था।\n\nउपर्युक्त कथनों में से कौन-सा/से सही है/हैं?",
+        options: ["A) केवल 1", "B) केवल 2", "C) 1 और 2 दोनों", "D) न तो 1 और न ही 2"],
+        ans: 0
+    },
+    {
+        q: "10. उत्तर मुगलकालीन शासकों से जुड़ी निम्नलिखित ऐतिहासिक घटनाओं पर विचार कीजिए:\n1. ब्रिटिश ईस्ट इंडिया कंपनी को बंगाल, बिहार और उड़ीसा की दीवानी अधिकार प्राप्त होना।\n2. सिख नेता बंदा सिंह बहादुर को मृत्युदंड दिया जाना।\n3. मुगल सम्राट फर्रुखसियर की हत्या।\n\nउपर्युक्त घटनाओं का सबसे पुराना से सबसे नया (कालेानुक्रमिक) सही क्रम क्या है?",
+        options: ["A) 2 – 3 – 1", "B) 3 – 2 – 1", "C) 2 – 1 – 3", "D) 1 – 2 – 3"],
+        ans: 0
+    },
+    {
+        q: "11. भारत में लौह अयस्क के संबंध में निम्नलिखित कथनों पर विचार कीजिए–\n1. हेमेटाइट में मैग्नेटाइट की अपेक्षा लौह की मात्रा अधिक होती है।\n2. ओडिशा भारत का सबसे बड़ा लौह अयस्क उत्पादक राज्य है।\n3. बैलाडीला लौह अयस्क खदानें छत्तीसगढ़ में स्थित हैं।\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["A. केवल 2 और 3", "B. केवल 1 और 2", "C. केवल 1 और 3", "D. 1, 2 और 3"],
+        ans: 0
+    },
+    {
+        q: "12. निम्नलिखित कथनों पर विचार कीजिए–\n1. कोयला एक धात्विक खनिज है।\n2. भारत में गोंडवाना कोयले का पर्याप्त भंडार है।\n3. एन्थ्रासाइट कोयला मुख्यतः जम्मू एवं कश्मीर में पाया जाता है।\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["A. केवल 2", "B. केवल 2 और 3", "C. केवल 1 और 2", "D. 1, 2 और 3"],
+        ans: 1
+    },
+    {
+        q: "13. मैंगनीज के संबंध में निम्नलिखित कथनों पर विचार कीजिए–\n1. मैंगनीज इस्पात निर्माण में आवश्यक धातु है।\n2. ओडिशा मैंगनीज का प्रमुख उत्पादक राज्य है।\n3. मैंगनीज एक अधात्विक खनिज है।\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["A. केवल 1 और 2", "B. केवल 2 और 3", "C. केवल 1", "D. 1, 2 और 3"],
+        ans: 0
+    },
+    {
+        q: "14. निम्नलिखित कथनों पर विचार कीजिए–\n1. भारत में सोने का प्रमुख उत्पादन कर्नाटक की हुट्टी खानों से होता है।\n2. कोलार गोल्ड फील्ड्स कर्नाटक में स्थित हैं।\n3. सिल्वेनाइट सोने का एक अयस्क है\n\nउपरोक्त में से कौन-सा/से कथन सही है/हैं?",
+        options: ["A. केवल 1 और 2", "B. केवल 2 और 3", "C. केवल 1 और 3", "D. 1, 2 और 3"],
+        ans: 3
+    },
+    {
+        q: "15. सुमेलित कीजिए:\nसूची-I (खनिज): A. अभ्रक (Mica), B. ताँबा (Copper), C. जस्ता (Zinc), D. बॉक्साइट (Bauxite)\nसूची-II (राज्य): 1. राजस्थान, 2. झारखंड, 3. ओडिशा, 4. राजस्थान",
+        options: ["A. A-2, B-1, C-4, D-3", "B. A-1, B-2, C-3, D-4", "C. A-3, B-4, C-2, D-1", "D. A-2, B-4, C-1, D-3"],
+        ans: 0
+    },
+    {
+        q: "16. सुमेलित कीजिए:\nसूची-I (खनन क्षेत्र): A. खेतड़ी, B. झरिया, C. बैलाडीला, D. पन्ना\nसूची-II (खनिज): 1. लौह अयस्क, 2. ताँबा, 3. कोयला, 4. हीरा",
+        options: ["A. A-2, B-3, C-1, D-4", "B. A-3, B-1, C-2, D-4", "C. A-1, B-2, C-3, D-4", "D. A-2, B-4, C-1, D-3"],
+        ans: 0
+    },
+    {
+        q: "17. सुमेलित कीजिए:\nसूची-I (खनिज): A. चूना पत्थर, B. बॉक्साइट, C. अभ्रक, D. जिप्सम\nसूची-II (मुख्य उपयोग): 1. एल्युमिनियम, 2. सीमेंट, 3. विद्युत उद्योग, 4. उर्वरक/सीमेंट",
+        options: ["A. A-2, B-1, C-3, D-4", "B. A-3, B-2, C-1, D-4", "C. A-2, B-4, C-3, D-1", "D. A-1, B-2, C-4, D-3"],
+        ans: 0
+    },
+    {
+        q: "18. Consider the statements about Cell Theory / कोशिका सिद्धांत के संबंध में कथनों पर विचार करें:\n1. All living organisms are composed of cells. / सभी जीवित जीव कोशिकाओं से बने होते हैं।\n2. Cell is the basic structural and functional unit of life. / कोशिका जीवन की मूल संरचनात्मक एवं क्रियात्मक इकाई है।\n3. Cells arise spontaneously from non-living matter. / कोशिकाएँ निर्जीव पदार्थ से स्वतः उत्पन्न होती हैं।",
+        options: ["A. 1 only / केवल 1", "B. 2 and 3 only / केवल 2 और 3", "C. 1 and 2 only / केवल 1 और 2", "D. 1, 2 and 3 / 1, 2 और 3"],
+        ans: 2
+    },
+    {
+        q: "19. Consider the statements about Prokaryotic Cells / प्रोकैरिओटिक कोशिकाओं के बारे में कथनों पर विचार करें:\n1. They do not have a true nucleus. / इनमें वास्तविक केंद्रक नहीं होता।\n2. Membrane-bound organelles are absent. / झिल्ली-युक्त कोशिकांग अनुपस्थित होते हैं।\n3. Ribosomes present are of 80S type. / इनमें 80S प्रकार के राइबोसोम पाए जाते हैं।",
+        options: ["A. 1 only / केवल 1", "B. 1 and 2 only / केवल 1 और 2", "C. 2 and 3 only / केवल 2 और 3", "D. 1, 2 and 3 / 1, 2 और 3"],
+        ans: 1
+    },
+    {
+        q: "20. Regarding Mitochondria, consider statements / माइटोकॉन्ड्रिया के संबंध में कथन:\n1. It is a double membrane-bound organelle. / यह दोहरी झिल्ली युक्त कोशिकांग है।\n2. It contains its own DNA. / इसमें अपना स्वयं का DNA होता है।\n3. It helps in photosynthesis. / यह प्रकाश संश्लेषण में सहायक होता है।",
+        options: ["A. 2 only / केवल 2", "B. 1 and 3 only / केवल 1 और 3", "C. 1 and 2 only / केवल 1 और 2", "D. 1, 2 and 3 / 1, 2 और 3"],
+        ans: 2
+    },
+    {
+        q: "21. Consider the statements about Ribosomes / राइबोसोम से संबंधित कथन:\n1. They are non-membranous structures. / ये बिना झिल्ली वाले कण होते हैं।\n2. They are sites of protein synthesis. / ये प्रोटीन संश्लेषण के स्थल हैं।\n3. They are absent in prokaryotes. / ये प्रोकैरिओट्स में अनुपस्थित होते हैं।",
+        options: ["A. 2 only / केवल 2", "B. 1 and 2 only / केवल 1 और 2", "C. 2 and 3 only / केवल 2 और 3", "D. 1, 2 and 3 / 1, 2 और 3"],
+        ans: 1
+    },
+    {
+        q: "22. Statements about Endoplasmic Reticulum (ER) / एंडोप्लाज्मिक रेटिकुलम के बारे में कथन:\n1. Rough ER helps in protein synthesis. / रफ ER प्रोटीन संश्लेषण में सहायक होता है।\n2. Smooth ER helps in lipid synthesis. / स्मूथ ER वसा संश्लेषण में सहायक होता है।\n3. ER is found in prokaryotic cells. / ER प्रोकैरिओटिक कोशिकाओं में पाया जाता है।",
+        options: ["A. 1 and 3 only / केवल 1 और 3", "B. 2 only / केवल 2", "C. 1, 2 and 3 / 1, 2 और 3", "D. 1 and 2 only / केवल 1 और 2"],
+        ans: 3
+    },
+    {
+        q: "23. Statements related to Golgi Apparatus are / गोल्जी तंत्र से संबंधित कथन:\n1. It modifies and packages proteins. / यह प्रोटीनों का संशोधन व पैकेजिंग करता है।\n2. It is involved in secretion. / यह स्राव में सहायक होता है।\n3. Known as \"traffic police\" of the cell. / इसे सेल की \"ट्रैफिक पुलिस\" के नाम से जाना जाता है।",
+        options: ["A. 2 and 3 only / केवल 2 और 3", "B. 1 only / केवल 1", "C. 1 and 2 only / केवल 1 और 2", "D. 1, 2 and 3 / 1, 2 और 3"],
+        ans: 3
+    },
+    {
+        q: "24. Consider the statements about Lysosomes / लाइसोसोम के बारे में कथन:\n1. They contain hydrolytic enzymes. / इनमें पाचक एंजाइम होते हैं।\n2. They are called suicide bags of the cell. / इन्हें कोशिका की आत्मघाती थैली कहते हैं।\n3. They are absent in animal cells. / ये जंतु कोशिकाओं में अनुपस्थित होते हैं।",
+        options: ["A. 2 only / केवल 2", "B. 1 and 3 only / केवल 1 और 3", "C. 1, 2 and 3 / 1, 2 और 3", "D. 1 and 2 only / केवल 1 और 2"],
+        ans: 3
+    },
+    {
+        q: "25. Regarding Chloroplast, consider statements / हरितलवक के संबंध में कथन:\n1. It contains chlorophyll pigment. / इसमें क्लोरोफिल वर्णक होता है।\n2. It is double membrane-bound. / यह दोहरी झिल्ली युक्त होता है।\n3. Chlorophyll traps sunlight. / क्लोरोफिल सूर्य की रोशनी को सोखता है।",
+        options: ["A. 2 and 3 only / केवल 2 और 3", "B. 1 and 2 only / केवल 1 और 2", "C. 1 only / केवल 1", "D. 1, 2 and 3 / 1, 2 और 3"],
+        ans: 3
+    },
+    {
+        q: "26. Statements about Plasma Membrane / प्लाज्मा झिल्ली के बारे में कथन:\n1. It is selectively permeable. / यह चयनात्मक पारगम्य होती है।\n2. It is made of lipids and proteins. / यह वसा एवं प्रोटीन से बनी होती है।\n3. It allows all substances freely. / यह सभी पदार्थों को स्वतंत्र रूप से जाने देती है।",
+        options: ["A. 1 only / केवल 1", "B. 2 only / केवल 2", "C. 1 and 2 only / केवल 1 और 2", "D. 1, 2 and 3 / 1, 2 और 3"],
+        ans: 2
+    },
+    {
+        q: "27. Consider statements about Nucleus / केंद्रक के बारे में कथन:\n1. It controls cell activities. / यह कोशिकीय क्रियाओं को नियंत्रित करता है।\n2. Nuclear membrane is double layered. / केंद्रीय झिल्ली दोहरी होती है।\n3. Mature mammalian RBCs lack nucleus. / परिपक्व स्तनधारी RBC में केंद्रक नहीं होता।",
+        options: ["A. 1 and 2 only / केवल 1 और 2", "B. 2 and 3 only / केवल 2 और 3", "C. 1 and 3 only / केवल 1 और 3", "D. 1, 2 and 3 / 1, 2 और 3"],
+        ans: 3
+    },
+    {
+        q: "28. Regarding Vacuole, consider statements / रित्तिका के संबंध में कथन:\n1. Plant cells have large central vacuole. / पादप कोशिकाओं में बड़ी केंद्रीय रिक्तिका होती है।\n2. It maintains turgor pressure. / यह तुर्गिडिटी बनाए रखती है।\n3. Storing nutrients and water. / वैक्यूल पोषक तत्वों एवं पानी को स्टोर करते हैं।",
+        options: ["A. 1 only / केवल 1", "B. 2 and 3 only / केवल 2 और 3", "C. 1 and 2 only / केवल 1 और 2", "D. 1, 2 and 3 / 1, 2 और 3"],
+        ans: 3
+    },
+    {
+        q: "29. Consider statements about Cytoplasm / साइटोप्लाज्म से संबंधित कथन:\n1. It contains cell organelles. / इसमें कोशिकांग उपस्थित होते हैं।\n2. Metabolic reactions occur here. / अधिकांश चयापचयी क्रियाएँ यहीं होती हैं।\n3. It is absent in prokaryotes. / यह प्रोकैरिओट्स में अनुपस्थित होता है।",
+        options: ["A. 2 only / केवल 2", "B. 1 and 2 only / केवल 1 और 2", "C. 1 and 3 only / केवल 1 और 3", "D. 1, 2 and 3 / 1, 2 और 3"],
+        ans: 1
+    },
+    {
+        q: "30. सुमेलित कीजिए:\nसूची-I (लोक चित्रकला): A. मधुबनी, B. वारली, C. पट्टचित्र, D. फड़\nसूची-II (राज्य): 1. महाराष्ट्र, 2. बिहार, 3. ओडिशा, 4. राजस्थान",
+        options: ["A. A-2, B-1, C-3, D-4", "B. A-1, B-2, C-4, D-3", "C. A-3, B-4, C-2, D-1", "D. A-2, B-3, C-1, D-4"],
+        ans: 0
+    }
+];
+
+let currentQ = 0;
+let score = 0;
+let timer;
+let timeLeft = 30;
+
+function startQuiz() {
+    document.getElementById('start-screen').classList.add('hide');
+    document.getElementById('quiz-screen').classList.remove('hide');
+    loadQuestion();
+}
+
+function loadQuestion() {
+    clearInterval(timer);
+    timeLeft = 30;
+    document.getElementById('timer').innerText = timeLeft;
+    
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            autoSelectAnswer();
+        }
+    }, 1000);
+
+    const qData = quizData[currentQ];
+    document.getElementById('question-count').innerText = `Question ${currentQ + 1}/${quizData.length}`;
+    document.getElementById('question').innerText = qData.q;
+    
+    const optionsGrid = document.getElementById('options');
+    optionsGrid.innerHTML = '';
+    
+    qData.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => selectAnswer(idx);
+        optionsGrid.appendChild(btn);
+    });
+    
+    document.getElementById('next-btn').classList.add('hide');
+}
+
+function selectAnswer(selectedIdx) {
+    clearInterval(timer);
+    const qData = quizData[currentQ];
+    const buttons = document.querySelectorAll('.option-btn');
+    
+    buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === qData.ans) {
+            btn.classList.add('correct');
+        }
+        if (idx === selectedIdx && selectedIdx !== qData.ans) {
+            btn.classList.add('wrong');
+        }
+    });
+
+    if (selectedIdx === qData.ans) {
+        score += 10;
+        document.getElementById('score').innerText = `Score: ${score}`;
+    }
+
+    document.getElementById('next-btn').classList.remove('hide');
+}
+
+function autoSelectAnswer() {
+    selectAnswer(-1);
+}
+
+function nextQuestion() {
+    currentQ++;
+    if (currentQ < quizData.length) {
+        loadQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function showResults() {
+    document.getElementById('quiz-screen').classList.add('hide');
+    document.getElementById('result-screen').classList.remove('hide');
+    document.getElementById('final-score').innerText = `Your Final Score: ${score} / ${quizData.length * 10}`;
+}
+</script>
+</body>
+</html>
